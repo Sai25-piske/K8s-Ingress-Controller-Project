@@ -1,50 +1,37 @@
-name: Secure DevSecOps Pipeline
+name: Kubernetes CI Pipeline
 
 on:
   push:
     branches:
       - main
 
-      
+  workflow_dispatch:
+
 jobs:
-  build_and_package:
-    name: BUILD-JOB
-    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+  kubernetes-validation:
 
-    runs-on: ubuntu-slim
-    
+    name: Kubernetes Validation
 
-    permissions:
-      actions: read
-      contents: read
-      security-events: write # Required to upload findings to the Security tab
-
+    runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Cache Dependencies
-        uses: actions/cache@v5
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+      - name: Show Repository Files
+        run: |
+          echo "Repository files:"
+          ls -la
+          echo "Kubernetes files:"
+          find . -name "*.yml" -o -name "*.yaml"
 
-      - name: BUILD
-        run: npm install
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
 
-      - name: TEST
-        run: echo "code is tested!"
+      - name: Validate Kubernetes YAML
+        run: |
+          kubectl apply --dry-run=client -f kind-cluster.yml
 
-      - name: Artifact upload
-        uses: actions/upload-artifact@v7
-        with:
-          name: artifact-1
-          path: |
-            package*
-      - name: deploy
-        run: ech0 "my code is deployed"
-
-      - name: rollback
-        if: failure()
-        run: echo "rollback is done"
+      - name: Show Validation Result
+        run: echo "Kubernetes YAML validation completed successfully!"
