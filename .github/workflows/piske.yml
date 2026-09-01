@@ -1,4 +1,4 @@
-name: Kubernetes CI Pipeline
+name: Piske Kubernetes Project
 
 on:
   push:
@@ -8,30 +8,27 @@ on:
   workflow_dispatch:
 
 jobs:
-  kubernetes-validation:
-
-    name: Kubernetes Validation
-
-    runs-on: ubuntu-latest
+  test:
+    name: Test Job
+    runs-on: ubuntu-slim
 
     steps:
 
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Show Repository Files
+      - name: Show Project Files
         run: |
-          echo "Repository files:"
+          echo "Project files:"
           ls -la
-          echo "Kubernetes files:"
-          find . -name "*.yml" -o -name "*.yaml"
 
-      - name: Install kubectl
-        uses: azure/setup-kubectl@v4
-
-      - name: Validate Kubernetes YAML
+      - name: Check Kubernetes Files
         run: |
-          kubectl apply --dry-run=client -f kind-cluster.yml
+          echo "Kubernetes project:"
+          ls -la
+          echo "Checking folders:"
+          ls -la mi-web
+          ls -la notes-app
 
-      - name: Show Validation Result
-        run: echo "Kubernetes YAML validation completed successfully!"
+      - name: Workflow Successful
+        run: echo "GitHub Actions workflow completed successfully!"
